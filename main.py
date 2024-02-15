@@ -21,6 +21,8 @@
 
 from fastapi import FastAPI, status, HTTPException
 
+from typing import Optional
+
 from uuid import UUID
 
 app = FastAPI()
@@ -49,7 +51,7 @@ def get_students_by_id(id: str):
     return student
 
 @app.post("/students", status_code=status.HTTP_201_CREATED)
-def add_student(name: str, age: int, sex: str, height: float):
+def add_student(name: str , age: int, sex: str, height: float):
     new_student = student_data.copy()
     new_student["id"] = str(UUID(int=len(students) + 1))
     new_student["name"] = name
@@ -62,16 +64,20 @@ def add_student(name: str, age: int, sex: str, height: float):
     return {"message": "Student added successfully", "data": new_student}
 
 @app.put("/students/{id}", status_code=status.HTTP_200_OK)
-def update_student(id: str, name: str, age: int, sex: str, height: float):
+def update_student(id: str, name: Optional[str] = None , age: Optional[int] = None, sex: Optional[str] = None, height: Optional[float] = None):
     student = students.get(id)
     if not student:
         raise HTTPException(
              status_code=status.HTTP_404_NOT_FOUND,
              detail="Student not found")
-    student["name"] = name
-    student["age"] = age
-    student["sex"] = sex
-    student["height"] = height
+    if name is not None:
+        student["name"] = name
+    if age is not None:
+        student["age"] = age
+    if sex is not None:
+        student["sex"] = sex
+    if height is not None:
+        student["height"] = height
 
     return {"message": "Student updated successfully", "data": student}
 
